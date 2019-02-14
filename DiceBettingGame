@@ -1,0 +1,178 @@
+#include "pch.h"
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+
+int roll_dice() {
+	// Generate a number between 1 and 6
+	int random_integer;
+	int range = 6;
+	random_integer = rand() % range + 1;
+	return random_integer;
+}
+int numpick() {
+	//Prompt the user for a number
+	int userNum;
+	std::cout << "	Pick a number from 1 to 6.\n	Your Number:  ";
+	//Stops infinite loop if user enters a char
+	while (!(std::cin >> userNum)) {
+		std::cout << "Incorrect input. Please try again.\n";
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	}
+	return userNum;
+
+}
+bool playOneGame() {
+		//Three random rolls
+		int roll1, roll2, roll3, userNum;
+		int error = 0;
+		roll1 = roll_dice();
+		roll2 = roll_dice();
+		roll3 = roll_dice();
+		std::cout << "	Let's Play!\n";
+		userNum = numpick();
+			//Check for valid number
+			while (userNum > 6 || userNum < 1) {
+				std::cout << "	You have entered an invalid number, please try again.\n\n";
+				userNum = numpick();				
+			}
+			//Display the rolls
+			std::cout << "	First roll: " << roll1 << std::endl;
+			if (roll1 == userNum) {
+				std::cout << "	**You win**\n\n";
+				return true;
+			}
+			std::cout << "	Second roll: " << roll2 << std::endl;
+			if (roll2 == userNum) {
+				std::cout << "	**You win**\n\n";
+				return true;
+			}
+			std::cout << "	Third roll: " << roll3 << std::endl;
+			//Display win or loose
+		if (roll3 == userNum) {
+			std::cout << "	**You win**\n\n";
+			return true;
+		}
+		else {
+			std::cout << "	You loose :(\n\n";
+			return false;
+		}
+}
+void Display(int Balance) {
+	std::cout << "Your Balance: $" << Balance << std::endl;
+}
+
+int getWager(int Balance) {
+	int wager;
+	std::cout << "Enter 0 to EXIT\nEnter your wager: ";
+	std::cin >> wager;
+	while (wager > Balance || wager < 0) {
+		if (wager > Balance) {
+			std::cout << "\nYour wager cannot be more than your account balance. Please try again.\n";
+		}
+		else {
+			std::cout << "\nYou have entered an invalid wager. Please try again.\n";
+		}
+		std::cout << "Enter wager(0 to exit) : ";
+		std::cin >> wager;
+	}
+	return wager;
+}
+
+bool AnotherGame() {
+	char answer;
+	std::cout << "Would you like to play another game? [Y/N] ";
+	std::cin >> answer;
+	std::cout << std::endl;
+	while (answer != 'Y' || answer != 'N' || answer != 'y' || answer != 'n') {
+		if (answer == 'Y' || answer == 'y') {
+			return false;
+		}
+		else if (answer == 'N' || answer == 'n') {
+			return true;
+		}
+		//Keep looping until valid input
+		else {
+			std::cin.ignore(10000, '\n');
+			std::cout << "Your answer could not be understood, please try again.\n";
+			std::cout << "Would you like to play another game? [Y/N] ";
+			std::cin >> answer;
+			std::cout << std::endl;
+		}
+	}
+}
+
+void DisplayStats(double wins, double loss) {
+	//Display stats with correct use of "game" or "games"
+	std::cout << "\nYou played a total of " << wins + loss;
+	if (wins + loss == 1) {
+		std::cout << " game\n";
+	}
+	else {
+		std::cout << " games\n";
+	}
+	std::cout << "You won " << wins;
+	if (wins == 1) {
+		std::cout << " game ";
+	}
+	else {
+		std::cout << " games ";
+	}
+	std::cout << "and lost " << loss;
+	if (loss == 1) {
+		std::cout << " game ";
+	}
+	else {
+		std::cout << " games ";
+	}
+	std::cout << "for a total winning percentage of %";
+	//No calculation if no wins
+	if (wins == 0) {
+		std::cout << 0 << std::endl;
+	}
+	else {
+		std::cout << (wins / (wins + loss)) * 100 << std::endl;
+	}
+}
+
+
+int main() {
+	srand(time(NULL));
+	int Balance = 100;
+	int wager;
+	double wins = 0;
+	double loss = 0;
+	bool outcome;
+	Display(Balance);	
+	bool end = false;
+	//Loop to keep playing as long as Balance or wager isn't zero 
+	while (end == false) {
+		wager = getWager(Balance);
+		if (wager == 0) {
+			break;
+		}
+	std::cout << "\nYou will be playing a single game.\n\n";
+	outcome = playOneGame();
+		if (outcome == true) {
+			Balance = Balance + wager;
+			wins = wins + 1;
+		}
+		else {
+			Balance = Balance - wager;
+			loss = loss + 1;
+		}
+		Display(Balance);
+		//End if no balance
+		if (Balance == 0) {
+			break;
+		}
+		//Ask for another game
+		end = AnotherGame();
+	}
+	DisplayStats(wins, loss);
+	std::cout << "GoodBye!\n\n\n";
+	
+	return 0;
+}
